@@ -324,7 +324,7 @@ class CppFile extends vscode.TreeItem {
             this.iconPath = new vscode.ThemeIcon('folder');
         } else {
             // Remove icons from files
-            this.iconPath = undefined;
+            this.iconPath = vscode.ThemeIcon.File;
 
             // Set resourceUri to enable VSCode's default file icons and colors
             this.resourceUri = vscode.Uri.file(this.fullPath);

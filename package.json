@@ -1,9 +1,10 @@
 {
   "name": "cppview",
   "displayName": "CppView",
-  "description": "An extension to display C++ project files, grouping header files under source files.",
-  "version": "0.0.1",
+  "description": "Explorer view for C/C++ codebases",
+  "version": "1.0.1",
   "publisher": "Kamtar",
+  "repository": "https://github.com/kamtar/vscode_cpp_view",
   "engines": {
     "vscode": "^1.95.0"
   },
