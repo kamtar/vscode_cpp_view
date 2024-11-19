@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as child_process from 'child_process';
+import * as os from 'os';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -20,6 +22,87 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand('cppView.openFile', (resource) => {
         vscode.window.showTextDocument(vscode.Uri.file(resource));
+    });
+
+    vscode.commands.registerCommand('cppView.newFile', async (element?: CppFile) => {
+        let dir: string;
+    
+        if (element) {
+            // If it's a file, use its parent directory; if it's a folder, use it directly
+            dir = element.isDirectory ? element.fullPath : path.dirname(element.fullPath);
+        } else {
+            // Fallback to the root workspace folder
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            dir = workspaceFolders ? workspaceFolders[0].uri.fsPath : '';
+        }
+    
+        if (!dir) {
+            vscode.window.showErrorMessage('Cannot determine directory for the new file.');
+            return;
+        }
+    
+        const fileName = await vscode.window.showInputBox({ prompt: 'Enter new file name' });
+        if (fileName) {
+            const filePath = path.join(dir, fileName);
+            try {
+                fs.writeFileSync(filePath, '');
+                cppViewProvider.refresh();
+                vscode.window.showTextDocument(vscode.Uri.file(filePath));
+                vscode.window.showInformationMessage(`File created: ${filePath}`);
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to create file`);
+            }
+        }
+    });
+
+    vscode.commands.registerCommand('cppView.revealInFileExplorer', (element: CppFile) => {
+        vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(element.fullPath));
+    });
+
+    
+    vscode.commands.registerCommand('cppView.copy', async (element: CppFile) => {
+        if (!element) {
+            vscode.window.showErrorMessage('No file or folder selected to copy.');
+            return;
+        }
+    
+        try {
+            const filePath = element.fullPath;
+    
+            // Determine the platform and execute the appropriate clipboard copy command
+            if (os.platform() === 'win32') {
+                // Windows: Use PowerShell to copy to clipboard
+                const command = `powershell.exe Set-Clipboard -Path "${filePath}"`;
+                child_process.execSync(command);
+            } else if (os.platform() === 'darwin') {
+                // macOS: Use pbcopy
+                child_process.execSync(`cat "${filePath}" | pbcopy`, { shell: '/bin/bash' });
+            } else if (os.platform() === 'linux') {
+                // Linux: Use xclip or xsel (xclip must be installed)
+                child_process.execSync(`xclip -selection clipboard -t application/octet-stream < "${filePath}"`, { shell: '/bin/bash' });
+            } else {
+                throw new Error('Unsupported platform');
+            }
+    
+            vscode.window.showInformationMessage(`Copied file to clipboard: ${filePath}`);
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to copy file to clipboard`);
+        }
+    });
+    
+    vscode.commands.registerCommand('cppView.copyPath', async (element: CppFile) => {
+        if (!element) {
+            vscode.window.showErrorMessage('No file or folder selected to copy.');
+            return;
+        }
+    
+        try {
+            // Copy the full path of the file or folder to the clipboard
+            await vscode.env.clipboard.writeText(element.fullPath);
+            vscode.window.showInformationMessage(`Copied path to clipboard: ${element.fullPath}`);
+        } catch (error) {
+            vscode.window.showErrorMessage(`Failed to copy path to clipboard`);
+        }
     });
 
 }
