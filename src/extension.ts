@@ -101,6 +101,24 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(element.fullPath));
     });
 
+    vscode.commands.registerCommand('cppView.pin', async (element: CppFile) => {
+        if (!element || !element.fullPath) {
+            vscode.window.showErrorMessage('Invalid CppFile element.');
+            return;
+        }
+
+        const document = await vscode.workspace.openTextDocument(element.fullPath);
+        const editor = await vscode.window.showTextDocument(document, {
+            preview: false, // Ensures the tab is not a preview
+            preserveFocus: false, // Focus moves to the newly opened tab
+            viewColumn: vscode.ViewColumn.Active, // Open in the current active column
+        });
+
+        // Execute the internal pin command
+        await vscode.commands.executeCommand('workbench.action.pinEditor');
+    });
+
+
     
     vscode.commands.registerCommand('cppView.copy', async (element: CppFile) => {
         if (!element) {

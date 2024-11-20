@@ -1,5 +1,8 @@
 # Change Log
 
+## [1.2.0] - 2024-11-21
+
+ - Pin action added into context menu
 
 ## [1.2.0] - 2024-11-20
 

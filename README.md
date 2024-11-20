@@ -13,6 +13,10 @@ Alternative tree view for your C/C++ files.
 ## Release Notes
 ### 1.2.0
 
+ - Pin action in context menu
+ 
+### 1.2.0
+
  - Treeview is now refreshing after external change in a filesystem
  - Delete action in context menu
  - Create Folder in context menu

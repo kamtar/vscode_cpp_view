@@ -2,7 +2,7 @@
   "name": "cppview",
   "displayName": "CppView",
   "description": "Explorer view for C/C++ codebases",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "publisher": "Kamtar",
   "repository": "https://github.com/kamtar/vscode_cpp_view",
   "engines": {
@@ -50,6 +50,10 @@
         "title": "Reveal in File Explorer"
       },
       {
+        "command": "cppView.pin",
+        "title": "Pin in Editor"
+      },
+      {
         "command": "cppView.delete",
         "title": "Delete"
       }
@@ -78,6 +82,11 @@
         },
         {
           "command": "cppView.revealInFileExplorer",
+          "when": "view == cppView",
+          "group": "3_views"
+        },
+        {
+          "command": "cppView.pin",
           "when": "view == cppView",
           "group": "3_views"
         },
