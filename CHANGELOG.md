@@ -1,9 +1,12 @@
 # Change Log
 
-All notable changes to the "cppview" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [1.2.0] - 2024-11-20
 
-## [Unreleased]
+ - Treeview is now refreshing after external change in a filesystem
+ - Delete action in context menu
+ - Create Folder in context menu
+
+## [1.1.0]
 
 - Initial release

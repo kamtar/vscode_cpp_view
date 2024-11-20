@@ -44,6 +44,12 @@ export function activate(context: vscode.ExtensionContext) {
         const fileName = await vscode.window.showInputBox({ prompt: 'Enter new file name' });
         if (fileName) {
             const filePath = path.join(dir, fileName);
+
+            if(fs.existsSync(filePath)){
+                vscode.window.showErrorMessage(`File already exists: ${filePath}`);
+                return;
+            }
+            
             try {
                 fs.writeFileSync(filePath, '');
                 cppViewProvider.refresh();
@@ -51,6 +57,42 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.window.showInformationMessage(`File created: ${filePath}`);
             } catch (error) {
                 vscode.window.showErrorMessage(`Failed to create file`);
+            }
+        }
+    });
+
+    vscode.commands.registerCommand('cppView.newFolder', async (element?: CppFile) => {
+        let dir: string;
+    
+        if (element) {
+            // If it's a file, use its parent directory; if it's a folder, use it directly
+            dir = element.isDirectory ? element.fullPath : path.dirname(element.fullPath);
+        } else {
+            // Fallback to the root workspace folder
+            const workspaceFolders = vscode.workspace.workspaceFolders;
+            dir = workspaceFolders ? workspaceFolders[0].uri.fsPath : '';
+        }
+    
+        if (!dir) {
+            vscode.window.showErrorMessage('Cannot determine directory for the new folder.');
+            return;
+        }
+    
+        const folderName = await vscode.window.showInputBox({ prompt: 'Enter new folder name' });
+        if (folderName) {
+            const folderPath = path.join(dir, folderName);
+            
+            if(fs.existsSync(folderPath)){
+                vscode.window.showErrorMessage(`Folder already exists: ${folderPath}`);
+                return;
+            }
+
+            try {
+                fs.mkdirSync(folderPath);
+                cppViewProvider.refresh();
+                vscode.window.showInformationMessage(`Folder created: ${folderPath}`);
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to create Folder`);
             }
         }
     });
@@ -105,6 +147,24 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    vscode.commands.registerCommand('cppView.delete', async (element: CppFile) => {
+        if (!element) {
+            vscode.window.showErrorMessage('No file or folder selected to delete.');
+            return;
+        }
+    
+        const confirm = await vscode.window.showWarningMessage(
+            `Are you sure you want to delete ${element.label}?`,
+            { modal: true },
+            'Yes'
+        );
+    
+        if (confirm === 'Yes') {
+            fs.rm(element.fullPath, { recursive: true }, (err) => { if(!err) {vscode.window.showInformationMessage(`Deleted: ${element.label}`);} else {vscode.window.showErrorMessage(`Failed to delete ${element.label}`);}});        
+            cppViewProvider.refresh(); // Refresh the TreeView
+        }
+    });    
+
 }
 
 export function deactivate() {}
@@ -114,7 +174,26 @@ class CppViewProvider implements vscode.TreeDataProvider<CppFile> {
     private _onDidChangeTreeData: vscode.EventEmitter<CppFile | undefined | void> = new vscode.EventEmitter<CppFile | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<CppFile | undefined | void> = this._onDidChangeTreeData.event;
 
+    private fileWatcher: vscode.FileSystemWatcher | undefined;
+
+
     constructor() {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (workspaceFolders) {
+            const pattern = new vscode.RelativePattern(workspaceFolders[0], '**/*');
+            this.fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+
+            // Watch for changes, deletions, and additions
+            this.fileWatcher.onDidChange(() => this.refresh());
+            this.fileWatcher.onDidCreate(() => this.refresh());
+            this.fileWatcher.onDidDelete(() => this.refresh());
+        }
+    }
+    
+    dispose(): void {
+        if (this.fileWatcher) {
+        this.fileWatcher.dispose();
+    }
     }
 
     refresh(): void {

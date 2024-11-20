@@ -2,7 +2,7 @@
   "name": "cppview",
   "displayName": "CppView",
   "description": "Explorer view for C/C++ codebases",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "Kamtar",
   "repository": "https://github.com/kamtar/vscode_cpp_view",
   "engines": {
@@ -34,6 +34,10 @@
         "title": "New File"
       },
       {
+        "command": "cppView.newFolder",
+        "title": "New Folder"
+      },
+      {
         "command": "cppView.copy",
         "title": "Copy File"
       },
@@ -44,12 +48,21 @@
       {
         "command": "cppView.revealInFileExplorer",
         "title": "Reveal in File Explorer"
+      },
+      {
+        "command": "cppView.delete",
+        "title": "Delete"
       }
     ],
     "menus": {
       "view/item/context": [
         {
           "command": "cppView.newFile",
+          "when": "view == cppView",
+          "group": "1_edits"
+        },
+        {
+          "command": "cppView.newFolder",
           "when": "view == cppView",
           "group": "1_edits"
         },
@@ -67,6 +80,11 @@
           "command": "cppView.revealInFileExplorer",
           "when": "view == cppView",
           "group": "3_views"
+        },
+        {
+          "command": "cppView.delete",
+          "when": "view == cppView",
+          "group": "4_edits"
         }
       ]
     }
