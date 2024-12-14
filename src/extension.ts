@@ -14,12 +14,13 @@ export function activate(context: vscode.ExtensionContext) {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders && workspaceFolders.length === 1) {
         treeView.title = workspaceFolders[0].name + " cppView";
+        treeView.description = workspaceFolders[0].uri.fsPath;
     } else if (vscode.workspace.name) {
         treeView.title = vscode.workspace.name+ " cppView";
     } else {
         treeView.title = 'Cpp View';
     }
-
+   
     vscode.commands.registerCommand('cppView.openFile', (resource) => {
         vscode.window.showTextDocument(vscode.Uri.file(resource));
     });
