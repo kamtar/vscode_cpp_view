@@ -11,7 +11,7 @@ Alternative tree view for your C/C++ files.
 - Few basic context menu actions
 
 ## Release Notes
-### 1.2.1
+### 1.2.2
  - Full workspace path in the title
 
 ### 1.2.1
