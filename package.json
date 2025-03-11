@@ -2,7 +2,7 @@
   "name": "cppview",
   "displayName": "CppView",
   "description": "Explorer view for C/C++ codebases",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "publisher": "Kamtar",
   "repository": "https://github.com/kamtar/vscode_cpp_view",
   "engines": {
@@ -56,6 +56,10 @@
       {
         "command": "cppView.delete",
         "title": "Delete"
+      },
+      {
+        "command": "cppView.showGitDiff",
+        "title": "Show Git Changes"
       }
     ],
     "menus": {
@@ -77,6 +81,11 @@
         },
         {
           "command": "cppView.copyPath",
+          "when": "view == cppView",
+          "group": "2_reads"
+        },
+        {
+          "command": "cppView.showGitDiff",
           "when": "view == cppView",
           "group": "2_reads"
         },

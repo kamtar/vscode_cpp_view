@@ -9,8 +9,12 @@ Alternative tree view for your C/C++ files.
 - It wont hide any file.
 - Adds folder icons for folders.
 - Few basic context menu actions
+- Show Git changes for files
 
 ## Release Notes
+### 1.2.3
+ - Added "Show Git Changes" menu option to view git diff for files
+
 ### 1.2.2
  - Full workspace path in the title
 
@@ -24,5 +28,5 @@ Alternative tree view for your C/C++ files.
 
 ### 1.1.0
 
-Initial release 
+Initial release
 

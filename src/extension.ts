@@ -184,6 +184,65 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });    
 
+    vscode.commands.registerCommand('cppView.showGitDiff', async (element: CppFile) => {
+        if (!element || element.isDirectory) {
+            vscode.window.showErrorMessage('Please select a file to show git changes.');
+            return;
+        }
+
+        try {
+            // Get the file URI
+            const fileUri = vscode.Uri.file(element.fullPath);
+            
+            // Try to use VS Code's built-in git commands to show changes
+            // This will automatically open the diff view if the file has changes
+            const success = await vscode.commands.executeCommand('git.openChange', fileUri);
+            
+            // If the built-in command doesn't work (returns undefined or false), try an alternative approach
+            if (!success) {
+                // Get the git repository containing the file
+                const gitExtension = vscode.extensions.getExtension('vscode.git')?.exports;
+                if (!gitExtension) {
+                    throw new Error('Git extension not available');
+                }
+                
+                const api = gitExtension.getAPI(1);
+                if (!api) {
+                    throw new Error('Git API not available');
+                }
+                
+                // Find the repository that contains this file
+                const repositories = api.repositories;
+                if (!repositories || repositories.length === 0) {
+                    throw new Error('No Git repositories found');
+                }
+                
+                // Check if file has changes in any repository
+                let fileHasChanges = false;
+                for (const repo of repositories) {
+                    // Compare workspace path with repository path to find the right repo
+                    const relativePath = path.relative(repo.rootUri.fsPath, element.fullPath);
+                    if (!relativePath.startsWith('..')) {
+                        // This is the correct repository
+                        const changes = await repo.diffIndexWithHEAD(relativePath);
+                        if (changes) {
+                            fileHasChanges = true;
+                            // Use the git.openChange command with repository context
+                            await vscode.commands.executeCommand('git.openChange', fileUri, repo);
+                            break;
+                        }
+                    }
+                }
+                
+                if (!fileHasChanges) {
+                    vscode.window.showInformationMessage(`No uncommitted changes for ${path.basename(element.fullPath)}`);
+                }
+            }
+        } catch (error) {
+            console.error('Error showing git diff:', error);
+            vscode.window.showErrorMessage(`Failed to show git diff: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    });
 }
 
 export function deactivate() {}

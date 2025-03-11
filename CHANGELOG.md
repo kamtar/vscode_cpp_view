@@ -1,5 +1,8 @@
 # Change Log
 
+## [1.2.3] - 2025-03-11
+ - Added "Show Git Changes" menu option to view git diff for files
+
 ## [1.2.2] - 2024-12-10
  - Full workspace path in the title
 
